@@ -73,12 +73,6 @@ public class TaskService {
 				 .orElseThrow(() -> 
 				 new TaskNotFoundException(
 						 "Task not found with id : " + id));
-		taskRepository.delete(task);
-		 							
+		taskRepository.delete(task);					
 	 }
-	 
-	 
-
-	
-
 }
