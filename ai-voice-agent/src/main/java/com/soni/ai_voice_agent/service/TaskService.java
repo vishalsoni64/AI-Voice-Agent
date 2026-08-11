@@ -8,14 +8,17 @@ import com.soni.ai_voice_agent.repository.TaskRepository;
 import com.soni.ai_voice_agent.dto.TaskRequest;
 import com.soni.ai_voice_agent.entity.Task;
 import com.soni.ai_voice_agent.exception.TaskNotFoundException;
+import com.soni.ai_voice_agent.reminder.service.ReminderService;
 
 @Service
 public class TaskService {
 	
 	private final TaskRepository taskRepository;
+	private final ReminderService reminderService;
 
-	public TaskService(TaskRepository taskRepository) {
+	public TaskService(TaskRepository taskRepository,ReminderService reminderService) {
 		this.taskRepository = taskRepository;
+		this.reminderService = reminderService;
 	}
 	/* this method creates a new task by taking a 
 	 * TaskRequest object as input,
@@ -28,6 +31,10 @@ public class TaskService {
 	        task.setDescription(request.getDescription());
 	        task.setReminderTime(request.getReminderTime());
 	        task.setStatus(request.getStatus());
+	        
+	        Task savedTask = taskRepository.save(task);
+	        reminderService.createReminder(savedTask); 
+	        // Process the reminder for the newly created task
 
 	        return taskRepository.save(task);
 	}
