@@ -3,6 +3,7 @@ package com.soni.ai_voice_agent.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.soni.ai_voice_agent.repository.TaskRepository;
 import com.soni.ai_voice_agent.dto.TaskRequest;
@@ -23,6 +24,8 @@ public class TaskService {
 	/* this method creates a new task by taking a 
 	 * TaskRequest object as input,
 	 */
+	
+	@Transactional
 	 public Task createTask(TaskRequest request) {
 
 	        Task task = new Task();
@@ -36,7 +39,7 @@ public class TaskService {
 	        reminderService.createReminder(savedTask); 
 	        // Process the reminder for the newly created task
 
-	        return taskRepository.save(task);
+	        return savedTask;
 	}
 	 
 	 /*this method retrieves all tasks from the database
@@ -58,6 +61,7 @@ public class TaskService {
 	 /* This method updates an existing
 	  * Task by its ID.
 	  */
+	 @Transactional
 	 public Task updateTask(long id, TaskRequest request) {
 		 
 		 Task task = taskRepository.findById(id)
@@ -70,16 +74,23 @@ public class TaskService {
 		 task.setReminderTime(request.getReminderTime());
 		 task.setStatus(request.getStatus());
 		 
-		 return taskRepository.save(task);
+		 Task updateTask = taskRepository.save(task);
+		 reminderService.updateReminderTime(updateTask);
+		 return updateTask;
 	 }
 	 
 	 
 	 // This method deletes a task by its ID.
+	 @Transactional
 	 public void deleteTask(long id) {
-		 Task task = taskRepository.findById(id)
+		/* Task task = taskRepository.findById(id)
 				 .orElseThrow(() -> 
 				 new TaskNotFoundException(
 						 "Task not found with id : " + id));
-		taskRepository.delete(task);					
+						 */
+		 reminderService.deleteReminderForTask(id);
+		taskRepository.deleteById(id);					
 	 }
+	 
+	 
 }
