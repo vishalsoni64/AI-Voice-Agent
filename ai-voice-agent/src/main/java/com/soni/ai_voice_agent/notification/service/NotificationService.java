@@ -13,6 +13,7 @@ public class NotificationService {
 				"NOTIFICATION Reminder for tasks: " 
 				+ reminder.getTask().getTitle()
 				);
+	
 	}
 
 }

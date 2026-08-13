@@ -19,8 +19,11 @@ component in the Spring framework. It is used to define business logic and
  scanning. */
 public class ReminderService {
 	
+	private static final int MAX_ATTEMPTS = 3;
+
 	private final ReminderRepository reminderRepository;
 	private final NotificationService notificationService;
+	
 
 	public ReminderService(ReminderRepository reminderRepository,
 			NotificationService notificationService) {
@@ -68,12 +71,25 @@ public class ReminderService {
 			System.out.println("Reminder sent successfully for task : " 
 								+ reminder.getTask().getTitle());
 		}catch (Exception e) {
-			reminder.setStatus(ReminderStatus.FAILED);
-			reminderRepository.save(reminder);
+			
 			System.out.println(
 					"Failed to process reminder : " 
 					+ e.getMessage()
 					);
+			
+			if(reminder.getAttemptCount() < MAX_ATTEMPTS) {
+				reminder.setStatus(ReminderStatus.PENDING);
+				System.out.println(
+						"Reminder will be retried. Attempt: "
+						+ reminder.getAttemptCount()
+						);
+			}else {
+				reminder.setStatus(ReminderStatus.FAILED);
+				System.out.println(
+						"Maximum retry attempts reached for tasks: "
+						+ reminder.getTask().getTitle());
+			}
+			reminderRepository.save(reminder);
 		}
 	}
 		

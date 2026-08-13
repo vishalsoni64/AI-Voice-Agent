@@ -10,11 +10,11 @@ import com.soni.ai_voice_agent.reminder.entity.Reminder;
 
 
 @Component
-public class RemainderScheduler {
+public class ReminderScheduler {
 	
 	private final ReminderService reminderService;
 	
-	public RemainderScheduler(ReminderService reminderService) {
+	public ReminderScheduler(ReminderService reminderService) {
 		this.reminderService = reminderService;
 	}
 	
