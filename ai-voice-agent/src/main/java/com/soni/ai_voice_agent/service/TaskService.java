@@ -16,11 +16,16 @@ public class TaskService {
 	
 	private final TaskRepository taskRepository;
 	private final ReminderService reminderService;
+	
 
 	public TaskService(TaskRepository taskRepository,ReminderService reminderService) {
 		this.taskRepository = taskRepository;
 		this.reminderService = reminderService;
 	}
+	
+	
+	
+	
 	/* this method creates a new task by taking a 
 	 * TaskRequest object as input,
 	 */
@@ -41,6 +46,8 @@ public class TaskService {
 
 	        return savedTask;
 	}
+	
+	
 	 
 	 /*this method retrieves all tasks from the database
 	  *  using the taskRepository's findAll() method and 
@@ -50,6 +57,8 @@ public class TaskService {
 	        return taskRepository.findAll();
 	 }
 	 
+	 
+	 
 	 /* Get a task by its ID. 
 	 If the task is not found, it throws a 
 	 TaskNotFoundException.
@@ -58,6 +67,8 @@ public class TaskService {
 		 return taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task not found with id : " + id));
 		 
 	 }
+	 
+	 
 	 /* This method updates an existing
 	  * Task by its ID.
 	  */

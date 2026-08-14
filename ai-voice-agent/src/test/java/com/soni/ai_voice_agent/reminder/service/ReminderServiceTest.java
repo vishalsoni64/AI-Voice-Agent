@@ -212,4 +212,115 @@ public class ReminderServiceTest {
 	            .delete(reminder);
 	}
 	
-}
+	
+	
+	void shouldMarkReminderAsSentWhenNotificationSucceeds() {
+		Reminder reminder = new Reminder();
+		
+		Task task = new Task();
+	    task.setTitle("Successful Notification Test");
+
+	    reminder.setTask(task);
+	    reminder.setAttemptCount(0);
+	    reminder.setStatus(ReminderStatus.PENDING);
+
+	    doNothing()
+	            .when(notificationService)
+	            .sendReminderNotification(reminder);
+
+	    reminderService.processReminder(reminder);
+
+	    assertEquals(
+	            1,
+	            reminder.getAttemptCount()
+	    );
+
+	    assertEquals(
+	            ReminderStatus.SENT,
+	            reminder.getStatus()
+	    );
+	    
+	    assertNotNull(reminder.getProcessedAt());
+
+	    verify(notificationService)
+	            .sendReminderNotification(reminder);
+
+	    verify(reminderRepository, times(2))
+	            .save(reminder);
+	}
+	
+	
+	@Test
+	void shouldSetReminderToPendingWhenNotificationFailsBeforeMaxAttempts() {
+
+	    Reminder reminder = new Reminder();
+
+	    Task task = new Task();
+	    task.setTitle("Retry Notification Test");
+
+	    reminder.setTask(task);
+	    reminder.setAttemptCount(0);
+	    reminder.setStatus(ReminderStatus.PENDING);
+
+	    doThrow(new RuntimeException("Notification failed"))
+	            .when(notificationService)
+	            .sendReminderNotification(reminder);
+
+	    reminderService.processReminder(reminder);
+
+	    assertEquals(
+	            1,
+	            reminder.getAttemptCount()
+	    );
+
+	    assertEquals(
+	            ReminderStatus.PENDING,
+	            reminder.getStatus()
+	    );
+
+	    verify(notificationService)
+	            .sendReminderNotification(reminder);
+
+	    verify(reminderRepository, times(2))
+	            .save(reminder);
+	}
+	
+	@Test
+	void shouldMarkReminderAsFailedWhenMaxAttemptsReached() {
+
+	    Reminder reminder = new Reminder();
+
+	    Task task = new Task();
+	    task.setTitle("Maximum Retry Test");
+
+	    reminder.setTask(task);
+	    reminder.setAttemptCount(2);
+	    reminder.setStatus(ReminderStatus.PENDING);
+
+	    doThrow(new RuntimeException("Notification failed"))
+	            .when(notificationService)
+	            .sendReminderNotification(reminder);
+
+	    reminderService.processReminder(reminder);
+
+	    assertEquals(
+	            3,
+	            reminder.getAttemptCount()
+	    );
+
+	    assertEquals(
+	            ReminderStatus.FAILED,
+	            reminder.getStatus()
+	    );
+
+	    verify(notificationService)
+	            .sendReminderNotification(reminder);
+
+	    verify(reminderRepository, times(2))
+	            .save(reminder);
+	}
+	    
+	}
+	
+	
+
